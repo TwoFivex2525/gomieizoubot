@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゴミ映像bot</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e2e0d8;
+    --text: #1a1a1a;
+    --muted: #888880;
+    --accent: #2d6ef5;
+    --accent-light: #eef2ff;
+    --danger: #e53935;
+    --radius: 12px;
+  }
+
+  body {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* ========== LOGIN ========== */
+  #login-screen {
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .login-icon {
+    font-size: 40px;
+    margin-bottom: 8px;
+  }
+
+  .login-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+
+  .login-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .pw-input {
+    width: 100%;
+    padding: 12px 44px 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s;
+  }
+
+  .pw-input:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  .toggle-pw {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 16px;
+    padding: 4px;
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .login-btn:hover { background: #1a58e0; }
+  .login-btn:active { transform: scale(0.98); }
+
+  .error-msg {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--danger);
+    text-align: center;
+    min-height: 18px;
+  }
+
+  /* ========== MAIN ========== */
+  #main-screen {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .site-icon {
+    font-size: 36px;
+    line-height: 1;
+  }
+
+  .site-title {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .site-badge {
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .invite-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .invite-btn:hover { background: #1a58e0; }
+  .invite-btn:active { transform: scale(0.98); }
+
+  .invite-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .desc-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .command-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .command-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .command-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 160px;
+  }
+
+  .command-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .step-list {
+    list-style: none;
+    counter-reset: steps;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .step-item {
+    counter-increment: steps;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .step-item::before {
+    content: counter(steps);
+    min-width: 24px;
+    height: 24px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 24px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .shake {
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🎬</div>
+    <div class="login-title">ゴミ映像bot</div>
+    <div class="login-sub">身内限定ページです。パスワードを入力してください。</div>
+    <label class="input-label" for="pw">パスワード</label>
+    <div class="input-wrap">
+      <input class="pw-input" type="password" id="pw" placeholder="••••••••" autocomplete="off">
+      <button class="toggle-pw" onclick="togglePw()" title="表示/非表示">👁</button>
+    </div>
+    <button class="login-btn" onclick="login()">ログイン</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</div>
+
+<!-- メイン画面 -->
+<div id="main-screen">
+  <div class="site-header">
+    <div class="site-icon">🎬</div>
+    <div class="site-title">ゴミ映像bot</div>
+    <div class="site-badge">身内限定</div>
+  </div>
+
+  <!-- 説明 -->
+  <div class="card">
+    <div class="card-title">📝 このBOTについて</div>
+    <p class="desc-text">
+      Discordの指定チャンネルに動画・画像が投稿されると、自動で感想コメントを送るBOTです。<br>
+      コメントはランダムで選ばれ、3〜15秒のランダムな遅延後に送信されます。
+    </p>
+  </div>
+
+  <!-- 招待 -->
+  <div class="card">
+    <div class="card-title">🔗 サーバーに追加する</div>
+    <a class="invite-btn" href="https://discord.com/oauth2/authorize?client_id=1488370216281968781&permissions=8&scope=bot+applications.commands" target="_blank">
+      ＋ サーバーに招待する
+    </a>
+    <p class="invite-note">※ Administratorロールを持つユーザーのみコマンドが使用できます。</p>
+  </div>
+
+  <!-- 使い方 -->
+  <div class="card">
+    <div class="card-title">🚀 セットアップ手順</div>
+    <ol class="step-list">
+      <li class="step-item">上の招待ボタンからBOTをサーバーに追加する</li>
+      <li class="step-item"><code>/setchannel</code> で反応するチャンネルを設定する</li>
+      <li class="step-item"><code>/toggle on</code> でBOTを有効化する</li>
+      <li class="step-item">設定したチャンネルに動画や画像を投稿して動作確認！</li>
+    </ol>
+  </div>
+
+  <!-- コマンド一覧 -->
+  <div class="card">
+    <div class="card-title">⚙️ コマンド一覧</div>
+    <ul class="command-list">
+      <li class="command-item">
+        <span class="command-name">/toggle on/off</span>
+        <span class="command-desc">BOTを有効化・無効化する</span>
+      </li>
+      <li class="command-item">
+        <span class="command-name">/setchannel</span>
+        <span class="command-desc">反応するチャンネルを設定する</span>
+      </li>
+      <li class="command-item">
+        <span class="command-name">/addcomment</span>
+        <span class="command-desc">感想文章をプールに追加する</span>
+      </li>
+      <li class="command-item">
+        <span class="command-name">/removecomment</span>
+        <span class="command-desc">番号を指定して感想を削除する</span>
+      </li>
+      <li class="command-item">
+        <span class="command-name">/listcomments</span>
+        <span class="command-desc">現在登録されている感想一覧を表示する</span>
+      </li>
+      <li class="command-item">
+        <span class="command-name">/help</span>
+        <span class="command-desc">コマンド一覧を表示する</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="footer">ゴミ映像bot — 身内限定配布ページ</div>
+</div>
+
+<script>
+  const PASS = "iV9(@j.L";
+
+  function login() {
+    const val = document.getElementById("pw").value;
+    const err = document.getElementById("error-msg");
+    if (val === PASS) {
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("main-screen").style.display = "block";
+    } else {
+      err.textContent = "パスワードが違います。";
+      const card = document.querySelector(".login-card");
+      card.classList.remove("shake");
+      void card.offsetWidth;
+      card.classList.add("shake");
+      document.getElementById("pw").value = "";
+    }
+  }
+
+  function togglePw() {
+    const input = document.getElementById("pw");
+    input.type = input.type === "password" ? "text" : "password";
+  }
+
+  document.getElementById("pw").addEventListener("keydown", e => {
+    if (e.key === "Enter") login();
+  });
+</script>
+</body>
+</html>
